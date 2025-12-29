@@ -1,0 +1,16 @@
+[project]
+name = "anderbaher-chatbot"
+version = "0.1.0"
+description = "Intent driven support chatbot"
+dependencies = [
+  "fastapi",
+  "uvicorn",
+  "sentence-transformers",
+  "pinecone-client",
+  "python-dateutil",
+  "requests",
+  "beautifulsoup4",
+  "pydantic",
+  "python-dotenv"
+]
+

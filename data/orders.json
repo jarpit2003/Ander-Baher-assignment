@@ -1,0 +1,31 @@
+[
+  {
+    "order_id": "ORD001",
+    "user_id": "U001",
+    "booking_amount": 230000,
+    "currency": "INR",
+    "booking_date": "2025-01-01",
+    "cancellation_date": "2025-01-16",
+    "order_status": "CANCELLED",
+    "shipping": {
+      "shipping_required": true,
+      "expected_delivery_date": "2025-02-10",
+      "actual_delivery_date": null
+    }
+  },
+  {
+    "order_id": "ORD002",
+    "user_id": "U002",
+    "booking_amount": 150000,
+    "currency": "INR",
+    "booking_date": "2025-01-05",
+    "cancellation_date": null,
+    "order_status": "IN_TRANSIT",
+    "shipping": {
+      "shipping_required": true,
+      "expected_delivery_date": "2025-01-25",
+      "actual_delivery_date": null
+    }
+  }
+]
+

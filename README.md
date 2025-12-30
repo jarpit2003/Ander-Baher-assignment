@@ -1,203 +1,197 @@
-# Andar-Baher Support Chatbot
+# Andar-Baher Deterministic Support API
 
-A deterministic AI-assisted customer support system with intent-driven routing and rule-based calculations.
+A deterministic, AI-assisted customer support backend built as a take-home assignment.  
+The system cleanly separates **AI understanding** from **business logic**, ensuring **correct, explainable, and safe handling of money and dates**.
 
-## 🚀 Quick Start
+---
 
-### 1. Activate Virtual Environment
+## Objective
 
-```powershell
-.\.venv\Scripts\activate
-```
+Build a customer support system that correctly answers:
 
-You should see `(.venv)` in your terminal prompt.
+### 1. FAQ / Policy Questions
+- Refund & returns  
+- Privacy policy  
+- Terms & conditions  
 
-### 2. Start the FastAPI Server
+Handled using **embeddings + vector search** (no hardcoded answers).
 
-```powershell
-.\.venv\Scripts\python.exe -m uvicorn api:app --reload
-```
+### 2. Transactional Questions
+- Order status  
+- Delivery ETA  
+- Refund explanation  
 
-**Expected Output:**
-```
-INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process
-INFO:     Started server process
-INFO:     Waiting for application startup.
-INFO:     Application startup complete.
-```
+Handled using **SLM-based intent extraction + deterministic backend rule engine**.
 
-### 3. Access the API
+---
 
-**Swagger UI (Interactive Documentation):**
-- Open in browser: http://127.0.0.1:8000/docs
+## Core Design Principles
 
-**Health Check:**
-- Open in browser: http://127.0.0.1:8000/
+- ❌ No business logic in AI prompts  
+- ❌ No money or date calculations in LLMs  
+- ✅ All rules implemented in backend Python code  
+- ✅ AI used only for intent identification and parameter extraction  
+- ✅ Fully deterministic and testable  
 
-## 🧪 Testing the API
+---
 
-### Option 1: Using Swagger UI (Easiest)
+## High-Level Architecture
 
-1. Go to http://127.0.0.1:8000/docs
-2. Click on `/query` endpoint
-3. Click "Try it out"
-4. Enter a query in the request body:
-   ```json
-   {
-     "query": "Why did I get only 25% refund for order ORD001?"
-   }
-   ```
-5. Click "Execute"
-6. See the response
+User Query (text)
+↓
+SLM Intent Extraction OR FAQ Embedding Search
+↓
+Structured JSON (intent + parameters)
+↓
+Rule Engine (Python)
+↓
+Computed Result
+↓
+Natural-language explanation (no calculations)
 
-### Option 2: Using Test Script
+yaml
+Copy code
 
-In a **new terminal** (keep server running in first terminal):
+---
 
-```powershell
-.\.venv\Scripts\activate
-.\.venv\Scripts\python.exe test_api.py
-```
+## Project Structure
 
-### Option 3: Using Python Directly
+.
+├── api.py # FastAPI app
+├── app.py # Core routing logic
+├── data/
+│ └── orders.json # Transactional dataset
+├── faq/
+│ ├── scrape_faq.py # Scrape official FAQ pages
+│ ├── chunk_faq.py # Chunk FAQ text
+│ ├── embed_faq.py # Generate embeddings
+│ └── chunks.txt # Chunked FAQ data
+├── rules/
+│ ├── order_rules.py # Order loader
+│ ├── refund_rules.py # Refund logic
+│ └── delivery_rules.py # Delivery ETA logic
+├── slm/
+│ └── intent_extractor.py # Mock SLM (JSON-only output)
+├── test.py # Unit & integration tests
+├── pyproject.toml # Dependency definitions
+├── uv.lock # Locked dependency versions
+├── README.md
+└── QUICK_START.md
 
-```powershell
-.\.venv\Scripts\activate
-.\.venv\Scripts\python.exe test_app.py
-```
+yaml
+Copy code
 
-### Option 4: Using curl (if available)
+---
 
-```powershell
-curl -X POST "http://127.0.0.1:8000/query" -H "Content-Type: application/json" -d "{\"query\": \"Why did I get only 25% refund for order ORD001?\"}"
-```
+## Data Design
 
-## 📝 Example Queries
+### Transactional Data (`data/orders.json`)
+- Multiple users and orders  
+- Delivered, in-transit, and cancelled orders  
+- Boundary cases (14, 15, 28 days)  
 
-### Refund Query
+❌ No derived or computed fields stored  
+❌ No refund amounts, percentages, or ETAs in data  
+
+All calculations happen **at runtime** via rules.
+
+---
+
+## AI Usage
+
+### FAQ Handling
+- Source: Official Andar-Baher policy pages  
+- Pipeline: Scrape → Chunk → Embed → Vector DB  
+- No hardcoded answers  
+- Safe fallback used in demo (no hallucinations)
+
+### Intent Extraction (SLM)
+- Keyword-based mock SLM  
+- Returns **JSON only**
+
+Example:
 ```json
 {
-  "query": "Why did I get only 25% refund for order ORD001?"
+  "intent": "REFUND_EXPLANATION",
+  "order_id": "ORD001"
 }
-```
-**Expected Response:** Refund amount calculation (57500.0 INR)
+Allowed intents:
 
-### Delivery Query
-```json
-{
-  "query": "delivery ORD002"
-}
-```
-**Expected Response:** Delivery date (2025-01-25)
+ORDER_STATUS
 
-### Status Query
-```json
-{
-  "query": "What is the status of order ORD002?"
-}
-```
-**Expected Response:** Order status (IN_TRANSIT)
+DELIVERY_ETA
 
-### FAQ Query
-```json
+REFUND_EXPLANATION
+
+FAQ
+
+The mock SLM can be replaced by Phi-3 / Mistral / Llama without changing backend code.
+
+Setup Instructions (Local)
+1. Clone Repository
+bash
+Copy code
+git clone https://github.com/jarpit2003/Ander-Baher-assignment.git
+cd Ander-Baher-assignment
+2. Create Virtual Environment
+bash
+Copy code
+python -m venv .venv
+.\.venv\Scripts\activate
+3. Install Dependencies (using uv)
+bash
+Copy code
+pip install uv
+uv sync
+This project uses pyproject.toml + uv.lock for reproducible builds
+(requirements.txt is intentionally not used).
+
+Run the Server
+bash
+Copy code
+python -m uvicorn api:app --reload
+Open:
+
+arduino
+Copy code
+http://127.0.0.1:8000/docs
+Demo Queries (MANDATORY)
+FAQ Query
+json
+Copy code
 {
   "query": "What is your refund policy?"
 }
-```
-**Expected Response:** FAQ fallback message
+Expected:
 
-## 🛠️ Project Structure
+json
+Copy code
+{
+  "response": "Please provide an order ID to explain the refund."
+}
+Order Status Query
+json
+Copy code
+{
+  "query": "What is the status of order ORD002?"
+}
+Expected:
 
-```
-.
-├── api.py                 # FastAPI application
-├── app.py                 # Main routing logic
-├── data/
-│   └── orders.json       # Order data (source of truth)
-├── faq/
-│   ├── scrape_faq.py    # FAQ scraper
-│   ├── chunk_faq.py     # FAQ chunker
-│   └── embed_faq.py     # FAQ embedding (Pinecone)
-├── rules/
-│   ├── order_rules.py   # Order loading
-│   ├── refund_rules.py  # Refund calculation
-│   └── delivery_rules.py # Delivery ETA
-├── slm/
-│   └── intent_extractor.py # Intent extraction
-└── test_*.py            # Test scripts
-```
+json
+Copy code
+{
+  "response": "Current status of order ORD002: IN_TRANSIT"
+}
+Refund Explanation Query
+json
+Copy code
+{
+  "query": "Why did I get only 25% refund for order ORD001?"
+}
+Expected:
 
-## 🔧 Troubleshooting
-
-### Server Won't Start
-
-1. **Check if port 8000 is in use:**
-   ```powershell
-   netstat -ano | findstr :8000
-   ```
-
-2. **Use a different port:**
-   ```powershell
-   .\.venv\Scripts\python.exe -m uvicorn api:app --reload --port 8001
-   ```
-
-### Module Not Found Errors
-
-Make sure you're in the project root directory:
-```powershell
-cd "C:\Users\HP\OneDrive\Desktop\ANDAR-BAHER ASSIGNMENT"
-```
-
-### Virtual Environment Issues
-
-If `.venv` doesn't work, recreate it:
-```powershell
-uv venv
-.venv\Scripts\activate
-uv sync
-```
-
-## 📊 System Architecture
-
-```
-User Query
-    ↓
-FastAPI Endpoint (/query)
-    ↓
-Intent Extraction (SLM)
-    ↓
-Router (app.py)
-    ↓
-Rule Engine (Python)
-    ↓
-Response
-```
-
-## 🎯 Key Features
-
-- ✅ Deterministic refund calculations
-- ✅ Intent-driven routing
-- ✅ Rule-based order processing
-- ✅ FastAPI REST API
-- ✅ Clean separation of concerns
-
-## 📚 API Endpoints
-
-- `GET /` - Health check
-- `POST /query` - Process user query
-
-## 🔐 Environment Variables
-
-Create `.env` file with:
-```
-PINECONE_API_KEY=your_actual_api_key_here
-PINECONE_ENV=us-east-1
-```
-
-## ⚠️ Note on Embeddings
-
-The FAQ embedding step (Phase 3, Step 3.3) requires PyTorch, which may have DLL loading issues on Windows. The core system works without embeddings - FAQ queries will return a fallback message.
-
-
-
+json
+Copy code
+{
+  "response": "Your order ORD001 was cancelled. Based on the cancellation policy, your refund amount is 57500.0 INR."
+}

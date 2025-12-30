@@ -171,6 +171,11 @@ Expected response:
   "response": "Your order ORD001 was cancelled after the 14-day window. As per policy, only a partial refund applies."
 }
 ```
+<img width="1143" height="870" alt="image" src="https://github.com/user-attachments/assets/3e67d5f4-10c1-429d-95d7-afbb6ac24ff0" />
+<img width="1477" height="869" alt="image" src="https://github.com/user-attachments/assets/37572dce-dab2-474b-9509-de41564f32e5" />
+<img width="1675" height="746" alt="image" src="https://github.com/user-attachments/assets/74f70885-681c-4759-83c6-1887c934916c" />
+<img width="1229" height="814" alt="image" src="https://github.com/user-attachments/assets/f217a699-9add-457a-a6d7-74a0d6a32836" />
+
 
 
 
